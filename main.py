@@ -1,15 +1,24 @@
 import random
 
+player1 = {
+    "HP" : 100,
+    "AC" : 20
+}
+player2 = {
+    "HP" : 50,
+    "AC" : 15
+}
+
 def dice_roll(sides, mod):
     return random.randint(1,sides) + mod
 
 def check_hit(target, mod):
-    roll = dice_roll(20, mod) #checking if you hit in 5e requires a d20 roll
+    roll = dice_roll(20, mod) 
     if roll >= target:
         return True
     return False
 
-
+#checking if you hit with an attack in 5e requires a d20 roll plus your modifier, compared to the target's defense (Armor Class)
 def ask_for_target():
     user_target = input("Please enter an armor class target:")
     return int(user_target)
@@ -27,7 +36,7 @@ def ask_attack_mod():
     return int(mod)
 
 
-def run_calculation():
+def single_target_calc():
     target = ask_for_target()
     attacks = ask_attack_count()
     mod = ask_attack_mod()
@@ -45,4 +54,4 @@ def run_calculation():
     return f"You got {hits} hits against AC {target}, for a total of {damage} damage"
 
 
-print(run_calculation())
+print(single_target_calc())
