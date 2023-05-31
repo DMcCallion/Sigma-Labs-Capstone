@@ -74,15 +74,17 @@ def predict_attacks_to_death(attacker, defender):
 #I want to make some options for the user in terms of targetting: 
 #target lowest/highest attacks to death, and target random
 
-def dangerous_targets():
+
+def dangerous_targets(attacker, defender):
+    print(barbarian.HP)
+
+def safe_targets(attacker, defender):
     pass
 
-def safe_targets():
-    pass
-
-def random_targets():
+def random_targets(attacker, defender):
     pass
 
 
 
 print(predict_attacks_to_death(zombies, barbarian))
+dangerous_targets(1,2)
