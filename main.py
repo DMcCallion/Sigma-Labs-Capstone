@@ -1,20 +1,24 @@
 import random
 
 
-#Should I use class/objects for this? 
-# if I want to calculate player attacks on monsters as well it might be easiest to group them all in a 'creature' class
-
 class creature:
-    def __init__(self, HP, AC, Dice, Mod, Quantity):
+    def __init__(self, HP, AC, Dice, Mod, Quantity, Hits, Hits_taken):
         self.HP = HP
         self.AC = AC
         self.Dice = Dice
         self.Mod = Mod
         self.Quantity = Quantity
+        self.Hits = Hits
+        self.Hits_taken = Hits_taken
 
-barbarian = creature(100, 15, 12, 9, 1)
-wizard = creature(45, 18, 10, 9, 1)
-zombies = creature(8, 10, 3, 4, 20)
+barbarian = creature(100, 15, 12, 9, 1, 0, 0)
+wizard = creature(45, 18, 11, 9, 1, 0, 0)
+ranger = creature(75,22,8,10,1, 0, 0)
+zombies = creature(8, 10, 6, 4, 10, 0, 0)
+
+
+party = [barbarian, wizard, ranger]
+
 
 
 
@@ -24,10 +28,12 @@ def dice_roll(creature):
 def check_hit(attacker, defender):
     roll = random.randint(1,20)
     if roll == 20: #critical hits calculate damage differently or I could just return true/false
+        defender.Hits_taken += 1
         return 2
     elif roll == 1: #rolling 1 automatically misses (this rarely comes into play )
         return 0
-    elif roll + attacker.mod >= defender.AC:
+    elif roll + attacker.Mod >= defender.AC:
+        defender.Hits_taken += 1
         return 1
     return 0
 
@@ -42,6 +48,14 @@ def calc_damage(hit, attacker):
         damage += random.randint(1, attacker.Dice) + attacker.Mod
     return damage
 
+
+def apply_damage(damage, defender):
+    defender.HP -= damage
+
+def attack(attacker, defender):
+    hit = check_hit(attacker,defender)
+    damage = calc_damage(hit, attacker)
+    apply_damage(damage, defender)
 
 #see Readme - hitrate if this is confusing
 def calc_hitrate(attacker, defender):
@@ -71,12 +85,24 @@ def predict_attacks_to_death(attacker, defender):
         count += 1
     return count
 
+
+def assign_hits_to_death(attacker, party):
+    for member in party:
+        member.Hits = predict_attacks_to_death(attacker, member)
+    party.sort(key = lambda x: x.Hits)
+
 #I want to make some options for the user in terms of targetting: 
 #target lowest/highest attacks to death, and target random
 
 
-def dangerous_targets(attacker, defender):
-    print(barbarian.HP)
+
+
+
+def dangerous_targets(attacker, party):
+    assign_hits_to_death(attacker, party)
+    for i in range(attacker.Quantity):
+        attack(attacker, party[0])
+    
 
 def safe_targets(attacker, defender):
     pass
@@ -84,7 +110,13 @@ def safe_targets(attacker, defender):
 def random_targets(attacker, defender):
     pass
 
+for member in party:
+    print(f"member HP: {member.HP}")
+
+dangerous_targets(zombies, party)
 
 
-print(predict_attacks_to_death(zombies, barbarian))
-dangerous_targets(1,2)
+for member in party:
+    print(f"member HP: {member.HP}")
+
+print(f"Wizard took {wizard.Hits_taken} hits")
