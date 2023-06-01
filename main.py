@@ -2,22 +2,26 @@ import random
 
 
 class creature:
-    def __init__(self, HP, AC, Dice, Mod, Quantity, Hits, Hits_taken):
+    def __init__(self, Name, HP, AC, Dice, Mod, Quantity, Hits_to_death, Hits_taken):
+        self.Name = Name
         self.HP = HP
         self.AC = AC
         self.Dice = Dice
         self.Mod = Mod
         self.Quantity = Quantity
-        self.Hits = Hits
+        self.Hits_to_death = Hits_to_death
         self.Hits_taken = Hits_taken
 
-barbarian = creature(100, 15, 12, 9, 1, 0, 0)
-wizard = creature(45, 18, 11, 9, 1, 0, 0)
-ranger = creature(75,22,8,10,1, 0, 0)
-zombies = creature(8, 10, 6, 4, 10, 0, 0)
+fighter = creature("Fighter", 60, 18, 12, 5, 1, 0, 0)
+wizard = creature("Wizard", 20, 16, 10, 5, 1, 0, 0)
+rogue = creature("Rogue", 30, 17, 6, 5, 1, 0, 0)
+cleric = creature("Cleric", 45, 20, 6, 2, 1, 0, 0)
 
 
-party = [barbarian, wizard, ranger]
+zombies = creature("Zombie", 22, 8, 6, 3, 15, 0, 0)
+gnolls = creature("Gnoll", 22, 15, 8, 2, 11, 0, 0)
+
+party = [fighter, wizard, rogue, cleric]
 
 
 
@@ -88,35 +92,62 @@ def predict_attacks_to_death(attacker, defender):
 
 def assign_hits_to_death(attacker, party):
     for member in party:
-        member.Hits = predict_attacks_to_death(attacker, member)
-    party.sort(key = lambda x: x.Hits)
-
-#I want to make some options for the user in terms of targetting: 
-#target lowest/highest attacks to death, and target random
+        member.Hits_to_death = predict_attacks_to_death(attacker, member)
+    party.sort(key = lambda x: x.Hits_to_death)
 
 
 
+#Below are functions for choosing targets from the party to attack (and applying the attacks)
+'''
+This is for enemies that employ hyena style tactics, picking off the weakest member
+alternatively if the monsters are looking to capture the players this is a good option
 
-
+It's tactically the best option - give yourself a numbers advantage ASAP - 
+but if you only use this one your wizard player will not have much fun
+'''
 def dangerous_targets(attacker, party):
     assign_hits_to_death(attacker, party)
-    for i in range(attacker.Quantity):
-        attack(attacker, party[0])
-    
+    attacks_made = 0
+    while attacks_made < attacker.Quantity: 
+        #There's got to be a better option than manually working through each party member like this
+        if party[0].HP > 0:
+            attack(attacker, party[0])
+        elif party[1].HP > 0:
+            attack(attacker, party[1])
+        elif party[2].HP > 0:
+            attack(attacker, party[2])
+        elif party[3].HP > 0:
+            attack(attacker, party[3])
 
+        attacks_made += 1
+
+
+'''
+This option is what dumb brutes like an ogre / horde of zombies etc would use. 
+In a typical party composition this has the monsters hitting the fighter or cleric 
+who are right in front of them, not the wizard standing 30 feet behind.
+ '''
 def safe_targets(attacker, defender):
     pass
 
+
+'''
+For a disorganized crowd who will each pick their own target. e.g. a bunch of goblins
+'''
 def random_targets(attacker, defender):
     pass
 
+
+#tests below
+
+
+assign_hits_to_death(zombies, party)
 for member in party:
-    print(f"member HP: {member.HP}")
+    print(f"{member.Name} HP: {member.HP}, #attacks to knock out:{member.Hits_to_death}")
+    
 
 dangerous_targets(zombies, party)
 
 
 for member in party:
-    print(f"member HP: {member.HP}")
-
-print(f"Wizard took {wizard.Hits_taken} hits")
+    print(f"{member.Name} took {member.Hits_taken} hits. Current HP:{member.HP}")
