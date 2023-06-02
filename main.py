@@ -106,7 +106,6 @@ It's tactically the best option - give yourself a numbers advantage ASAP -
 but if you only use this one your wizard player will not have much fun
 '''
 def dangerous_targets(attacker, party):
-    assign_hits_to_death(attacker, party)
     attacks_made = 0
     while attacks_made < attacker.Quantity: 
         #There's got to be a better option than manually working through each party member like this
@@ -123,12 +122,25 @@ def dangerous_targets(attacker, party):
 
 
 '''
-This option is what dumb brutes like an ogre / horde of zombies etc would use. 
+This option hits the target who can take the most hits
+it kind of replicates what dumb brutes like an ogre / horde of zombies etc would use. 
 In a typical party composition this has the monsters hitting the fighter or cleric 
 who are right in front of them, not the wizard standing 30 feet behind.
  '''
-def safe_targets(attacker, defender):
-    pass
+def safe_targets(attacker, party):
+    attacks_made = 0
+    while attacks_made < attacker.Quantity: 
+        #There's got to be a better option than manually working through each party member like this
+        if party[-1].HP > 0:
+            attack(attacker, party[-1])
+        elif party[-2].HP > 0:
+            attack(attacker, party[-2])
+        elif party[-3].HP > 0:
+            attack(attacker, party[-3])
+        elif party[-4].HP > 0:
+            attack(attacker, party[-4])
+        assign_hits_to_death(attacker, party)
+        attacks_made += 1
 
 
 '''
@@ -136,6 +148,8 @@ For a disorganized crowd who will each pick their own target. e.g. a bunch of go
 '''
 def random_targets(attacker, defender):
     pass
+
+
 
 
 #tests below
@@ -146,7 +160,7 @@ for member in party:
     print(f"{member.Name} HP: {member.HP}, #attacks to knock out:{member.Hits_to_death}")
     
 
-dangerous_targets(zombies, party)
+safe_targets(zombies, party)
 
 
 for member in party:
